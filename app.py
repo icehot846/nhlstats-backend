@@ -13,8 +13,10 @@ def add_cache_headers(response):
     response.headers["Expires"] = "0"
     return response
 
+# Root route for health check
+@app.route("/")
+def home():
+    return "NHL Stats API is live!"
+
 # Register Blueprints
 app.register_blueprint(teams_bp, url_prefix='/api/teams')
-
-if __name__ == "__main__":
-    app.run(debug=True, port=5000)
