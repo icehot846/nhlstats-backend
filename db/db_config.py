@@ -1,9 +1,10 @@
-import mysql.connector
+import os
 
-# MySQL Database Configuration
 DB_CONFIG = {
-    "host": "localhost",
-    "user": "root",  # Change to your MySQL username
-    "password": "root",  # Change to your MySQL password
-    "database": "nhl_stats"  # Change to your actual database name
+    "host": os.getenv("DB_HOST"),
+    "port": os.getenv("DB_PORT"),
+    "dbname": os.getenv("DB_NAME"),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD")
 }
+

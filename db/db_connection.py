@@ -1,11 +1,9 @@
-import mysql.connector  # Ensure this is imported
-from db.db_config import DB_CONFIG  # Import database config
+import psycopg2
+from db.db_config import DB_CONFIG
 
 def get_db_connection():
-    """Establish and return a MySQL database connection."""
     try:
-        connection = mysql.connector.connect(**DB_CONFIG)
-        return connection
-    except mysql.connector.Error as err:
-        print(f"Error: {err}")
-        return None
+        return psycopg2.connect(**DB_CONFIG)
+    except psycopg2.Error as err:
+        print(f"❌ PostgreSQL connection error: {err}")
+        raise
