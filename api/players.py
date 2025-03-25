@@ -1,12 +1,13 @@
 from flask import Blueprint, jsonify
 from db.db_connection import get_db_connection
+import psycopg2.extras
 
 players_bp = Blueprint('players', __name__)
 
 @players_bp.route('/', methods=['GET'])
 def get_players():
     connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
+    cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cursor.execute("SELECT * FROM players")
     players = cursor.fetchall()
     cursor.close()
@@ -16,7 +17,7 @@ def get_players():
 @players_bp.route('/<int:player_id>', methods=['GET'])
 def get_player(player_id):
     connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
+    cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cursor.execute("SELECT * FROM players WHERE id = %s", (player_id,))
     player = cursor.fetchone()
     cursor.close()
