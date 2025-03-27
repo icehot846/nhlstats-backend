@@ -13,6 +13,10 @@ TEAM_ABBRS = ["TOR", "MTL", "CHI", "NYR", "BOS","ANA","BUF","CAR","CBJ","CGY","C
                       "EDM","FLA","LAK","MIN","NJD","NSH","NYI","OTT","PHI","PIT",
                       "SEA","SJS","STL","TBL","UTA","VAN","VGK","WPG","WSH"] 
 
+TOP_SCORERS_URL = "https://api-web.nhle.com/v1/skater-stats-leaders/20242025/2?categories=goals&limit=5"
+TOP_GOALIES_URL = "https://api-web.nhle.com/v1/goalie-stats-leaders/current?categories=wins&limit=5"
+
+
 def fetch_team_stats(team_abbr):
     url = f"https://api-web.nhle.com/v1/club-stats/{team_abbr}/now"
     response = requests.get(url)
@@ -78,6 +82,66 @@ def insert_goalies(cursor, team_id, goalies):
             **g
         })
 
+def update_top_scorers(cursor):
+    print("🔁 Updating top scorers...")
+    try:
+        res = requests.get(TOP_SCORERS_URL)
+        res.raise_for_status()
+        players = res.json().get("goals", [])
+
+        cursor.execute("DELETE FROM top_scorers;")
+
+        for p in players:
+            cursor.execute("""
+                INSERT INTO top_scorers (
+                    player_id, first_name, last_name, team_abbr, team_name,
+                    position, headshot, team_logo, goals
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (
+                p["id"],
+                p["firstName"]["default"],
+                p["lastName"]["default"],
+                p["teamAbbrev"],
+                p["teamName"]["default"],
+                p["position"],
+                p["headshot"],
+                p["teamLogo"],
+                p["value"]
+            ))
+    except Exception as e:
+        print(f"❌ Failed to update top scorers: {e}")
+
+
+def update_top_goalies(cursor):
+    print("🔁 Updating top goalies...")
+    try:
+        res = requests.get(TOP_GOALIES_URL)
+        res.raise_for_status()
+        goalies = res.json().get("wins", [])
+
+        cursor.execute("DELETE FROM top_goalies;")
+
+        for g in goalies:
+            cursor.execute("""
+                INSERT INTO top_goalies (
+                    player_id, first_name, last_name, team_abbr, team_name,
+                    position, headshot, team_logo, wins
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (
+                g["id"],
+                g["firstName"]["default"],
+                g["lastName"]["default"],
+                g["teamAbbrev"],
+                g["teamName"]["default"],
+                g["position"],
+                g["headshot"],
+                g["teamLogo"],
+                g["value"]
+            ))
+    except Exception as e:
+        print(f"❌ Failed to update top goalies: {e}")
+
+
 def main():
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -90,6 +154,9 @@ def main():
 
             insert_players(cursor, team_id, stats.get("skaters", []))
             insert_goalies(cursor, team_id, stats.get("goalies", []))
+            update_top_scorers(cursor)
+            update_top_goalies(cursor)
+
 
         conn.commit()
         print("✅ Data uploaded successfully.")

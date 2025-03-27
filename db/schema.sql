@@ -53,3 +53,29 @@ CREATE TABLE goalies (
     goals_against INTEGER,
     shutouts INTEGER
 );
+
+CREATE TABLE IF NOT EXISTS top_scorers (
+    player_id INT PRIMARY KEY,
+    first_name TEXT,
+    last_name TEXT,
+    team_abbr VARCHAR(5),
+    team_name TEXT,
+    position VARCHAR(5),
+    headshot TEXT,
+    team_logo TEXT,
+    goals INT,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS top_goalies (
+    player_id INT PRIMARY KEY,
+    first_name TEXT,
+    last_name TEXT,
+    team_abbr VARCHAR(5),
+    team_name TEXT,
+    position VARCHAR(5),
+    headshot TEXT,
+    team_logo TEXT,
+    wins INT,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
