@@ -1,27 +1,36 @@
-import requests
 from flask import Blueprint, jsonify
+from db.db_connection import get_db_connection
+import psycopg2.extras
 
-bp = Blueprint('leaders', __name__)
+leaders_bp = Blueprint('leaders', __name__)
 
-@bp.route('/skater-stats-leaders/current')
-def proxy_top_scorers():
+@leaders_bp.route('/skater-stats-leaders/current', methods=['GET'])
+def get_top_scorers():
+    connection = get_db_connection()
+    cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
     try:
-        url = "https://api-web.nhle.com/v1/skater-stats-leaders/20242025/2?categories=goals&limit=5"
-        res = requests.get(url)
-        res.raise_for_status()
-        data = res.json()
-        return jsonify(data["goals"])
+        cursor.execute("SELECT * FROM top_scorers ORDER BY goals DESC;")
+        top_scorers = cursor.fetchall()
+        return jsonify(top_scorers)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
+@leaders_bp.route('/goalie-stats-leaders/current', methods=['GET'])
+def get_top_goalies():
+    connection = get_db_connection()
+    cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-@bp.route('/goalie-stats-leaders/current')
-def proxy_top_goalies():
     try:
-        url = "https://api-web.nhle.com/v1/goalie-stats-leaders/current?categories=wins&limit=5"
-        res = requests.get(url)
-        res.raise_for_status()
-        data = res.json()
-        return jsonify(data["wins"])
+        cursor.execute("SELECT * FROM top_goalies ORDER BY wins DESC;")
+        top_goalies = cursor.fetchall()
+        return jsonify(top_goalies)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
