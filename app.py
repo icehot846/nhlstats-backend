@@ -21,4 +21,4 @@ def home():
 
 # Register Blueprints
 app.register_blueprint(teams_bp, url_prefix='/api/teams')
-app.register_blueprint(leaders_bp, url_prefix='/v1') 
+app.register_blueprint(leaders_bp, url_prefix='/api') 
