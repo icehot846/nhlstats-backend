@@ -1,7 +1,13 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import requests
 import psycopg2
 import psycopg2.extras
 from db.db_connection import get_db_connection
+
 
 TEAM_ABBRS = ["TOR", "MTL", "CHI", "NYR", "BOS","ANA","BUF","CAR","CBJ","CGY","COL","DAL","DET",
                       "EDM","FLA","LAK","MIN","NJD","NSH","NYI","OTT","PHI","PIT",
